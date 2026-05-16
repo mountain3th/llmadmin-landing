@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import MarqueeSection from "@/components/MarqueeSection";
 import Features from "@/components/Features";
 import FAQ from "@/components/FAQ";
+import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
       <MarqueeSection />
       <Features />
       <FAQ />
+      <CTA />
       <Footer />
     </main>
   );
