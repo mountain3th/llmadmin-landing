@@ -4,21 +4,24 @@ import { useEffect, useState } from "react";
 import { FaWindows, FaUbuntu } from "react-icons/fa";
 import { Apple } from "@lobehub/icons";
 
-const DOWNLOADS: Record<string, { url: string; icon: React.ReactNode; label: string }> = {
+const DOWNLOADS: Record<string, { url: string; icon: React.ReactNode; label: string; version: string }> = {
   Windows: {
     url: "https://github.com/llmadmin/llmadmin/releases/latest/download/llmadmin-windows-amd64.exe",
     icon: <FaWindows size={20} />,
     label: "Windows (.exe)",
+    version: "Windows 10/11",
   },
   macOS: {
     url: "https://github.com/llmadmin/llmadmin/releases/latest/download/llmadmin-darwin-arm64.dmg",
     icon: <Apple size={20} />,
-    label: "macOS (.dmg)",
+    label: "macOS Intel (.dmg)",
+    version: "macOS 12+",
   },
   Linux: {
     url: "https://github.com/llmadmin/llmadmin/releases/latest/download/llmadmin-linux-amd64.deb",
     icon: <FaUbuntu size={20} />,
     label: "Linux (.deb)",
+    version: "Ubuntu 20.04+",
   },
 };
 
@@ -49,13 +52,16 @@ export default function CTA() {
           <p className="text-[#5c5f5e] text-lg mb-10 max-w-xl mx-auto">
             立即下载 LLM Admin，体验统一的大模型管理与分发平台。
           </p>
-          <a
-            href={download.url}
-            className="inline-flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg cursor-pointer"
-          >
-            {download.icon}
-            立即下载 {download.label}
-          </a>
+          <div className="inline-flex flex-col items-center">
+            <a
+              href={download.url}
+              className="inline-flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg cursor-pointer"
+            >
+              {download.icon}
+              立即下载 {download.label}
+            </a>
+            <span className="mt-2 text-xs text-[#5c5f5e]">* {download.version}</span>
+          </div>
         </div>
       </div>
     </section>
