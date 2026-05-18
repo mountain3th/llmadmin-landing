@@ -34,18 +34,27 @@ export default function Hero() {
             LLM Admin 是为您量身定制的强大且灵活的软件分发解决方案。无论是在复杂的企业环境还是个人开发工作流中，都能提供卓越的稳定性与性能表现。
           </p>
           <div className="flex flex-row flex-nowrap gap-4 pt-4">
-            <button className="flex-1 flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-4 py-3 rounded-xl hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg text-sm font-medium cursor-pointer">
-              <FaWindows size={20} />
-              Windows (.exe)
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-4 py-3 rounded-xl hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg text-sm font-medium cursor-pointer">
-              <Apple size={20} />
-              macOS (.dmg)
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-4 py-3 rounded-xl hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg text-sm font-medium cursor-pointer">
-              <FaUbuntu size={20} />
-              Linux (.deb)
-            </button>
+            <div className="flex-1 flex flex-col items-center">
+              <button className="w-full flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-4 py-3 rounded-xl hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg text-sm font-medium cursor-pointer">
+                <FaWindows size={20} />
+                Windows (.exe)
+              </button>
+              <span className="mt-2 text-xs text-[#5c5f5e]">* Windows 10/11</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center">
+              <button className="w-full flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-4 py-3 rounded-xl hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg text-sm font-medium cursor-pointer">
+                <Apple size={20} />
+                macOS Intel (.dmg)
+              </button>
+              <span className="mt-2 text-xs text-[#5c5f5e]">* macOS 12+</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center">
+              <button className="w-full flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-4 py-3 rounded-xl hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg text-sm font-medium cursor-pointer">
+                <FaUbuntu size={20} />
+                Linux (.deb)
+              </button>
+              <span className="mt-2 text-xs text-[#5c5f5e]">* Ubuntu 20.04+</span>
+            </div>
           </div>
         </div>
         <div className="relative">
