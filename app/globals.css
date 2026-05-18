@@ -51,6 +51,10 @@
     --color-primary: #154212;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: #f9f9ff;
     color: #151c27;
