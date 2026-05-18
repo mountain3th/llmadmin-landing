@@ -10,9 +10,9 @@ export default function Hero() {
         <div className="space-y-8">
           <h1 className="text-5xl md:text-6xl lg:text-[64px] leading-tight font-bold text-[#151c27] tracking-tight">
             一个接口
-            <div>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;两种
-              <span className="inline-flex flex-col h-[1em] overflow-hidden align-top">
+            <div className="pl-[1.5em]">
+              两种
+              <span className="inline-flex flex-col h-[1.2em] overflow-hidden">
                 <span className="animate-text-slide text-left">
                   <span className="text-[#2d5a27]">协议</span>
                   <br />
@@ -24,10 +24,8 @@ export default function Hero() {
                 </span>
               </span>
             </div>
-            <div>
-              <span className="text-[#2d5a27]">
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;任意模型
-              </span>
+            <div className="pl-[3em]">
+              <span className="text-[#2d5a27]">任意模型</span>
             </div>
           </h1>
           <p className="text-lg text-[#5c5f5e] leading-relaxed max-w-xl">
