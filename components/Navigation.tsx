@@ -1,14 +1,29 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 export default function Navigation() {
   const pathname = usePathname();
+  const [featuresActive, setFeaturesActive] = useState(false);
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
+    if (href === "/") return pathname === "/" && !featuresActive;
     return pathname.startsWith(href);
   };
+
+  useEffect(() => {
+    const el = document.getElementById("features");
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setFeaturesActive(entry.isIntersecting),
+      { threshold: 0.3 },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-8 py-3 bg-[#f9f9ff]/80 dark:bg-[#d3daea]/80 backdrop-blur-md rounded-full mt-4 mx-auto max-w-[1200px] border border-[#72796e]/10 shadow-sm">
@@ -30,12 +45,12 @@ export default function Navigation() {
       <div className="hidden md:flex gap-8">
         <a
           className={isActive("/") ? "text-[#154212] dark:text-[#a1d494] font-semibold border-b-2 border-[#154212] transition-all text-sm" : "text-[#5c5f5e] dark:text-[#c5c7c6] hover:text-[#154212] dark:hover:text-[#a1d494] transition-colors text-sm"}
-          href="/"
+          href="/#download"
         >
           Overview
         </a>
         <a
-          className="text-[#5c5f5e] dark:text-[#c5c7c6] hover:text-[#154212] dark:hover:text-[#a1d494] transition-colors text-sm"
+          className={featuresActive && pathname === "/" ? "text-[#154212] dark:text-[#a1d494] font-semibold border-b-2 border-[#154212] transition-all text-sm" : "text-[#5c5f5e] dark:text-[#c5c7c6] hover:text-[#154212] dark:hover:text-[#a1d494] transition-colors text-sm"}
           href="/#features"
         >
           Features

@@ -31,6 +31,9 @@ export default function Footer() {
           <a className="text-sm text-[#5c5f5e] hover:text-[#154212] transition-colors" href="/tutorials">
             Documentation
           </a>
+          <a className="text-sm text-[#5c5f5e] hover:text-[#154212] transition-colors" href="mailto:support@llmadmin.dev">
+            Contact Us
+          </a>
         </div>
       </div>
     </footer>
