@@ -62,9 +62,9 @@ export default function Navigation() {
           教程
         </a>
       </div>
-      <button className="bg-[#2d5a27] text-white text-sm px-6 py-2.5 rounded-full hover:opacity-90 transition-all scale-95 active:scale-90 hover:shadow-lg">
+      <a href="/#download" className="bg-[#2d5a27] text-white text-sm px-6 py-2.5 rounded-full hover:opacity-90 transition-all scale-95 active:scale-90 hover:shadow-lg">
         立即开始
-      </button>
+      </a>
     </nav>
   );
 }

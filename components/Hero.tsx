@@ -44,7 +44,7 @@ LLM Admin 将您的模型编排为一支全天候待命的 AI 团队。它调度
                 <Apple size={20} />
                 macOS (.dmg)
               </a>
-              <span className="mt-2 text-xs text-[#5c5f5e]">* Intel (macOS 12+)</span>
+              <span className="mt-2 text-xs text-[#5c5f5e]">* (Intel) macOS 12+</span>
             </div>
             <div className="flex-1 flex flex-col items-center">
               <a href="/api/download?platform=linux" className="w-full flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-4 py-3 rounded-xl hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg text-sm font-medium cursor-pointer">
