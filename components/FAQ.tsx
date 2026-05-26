@@ -38,18 +38,24 @@ export default function FAQ() {
 
       <div className="space-y-4">
         {faqs.map((faq, index) => (
-          <details
+          <div
             key={index}
             className="group bg-white border border-[#72796e]/5 rounded-2xl soft-shadow transition-all duration-300"
-            open={openIndex === index}
-            onClick={() => setOpenIndex(openIndex === index ? null : index)}
           >
-            <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+            <summary
+              className="flex items-center justify-between p-6 cursor-pointer list-none"
+              onClick={() => setOpenIndex(openIndex === index ? null : index)}
+            >
               <span className="font-semibold text-[#151c27]">{faq.question}</span>
-              <MdExpandMore size={24} className="text-[#2d5a27] transition-transform duration-300 group-open:rotate-180" />
+              <MdExpandMore
+                size={24}
+                className={`text-[#2d5a27] transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""}`}
+              />
             </summary>
-            <div className="px-6 pb-6 text-[#5c5f5e]">{faq.answer}</div>
-          </details>
+            {openIndex === index && (
+              <div className="px-6 pb-6 text-[#5c5f5e]">{faq.answer}</div>
+            )}
+          </div>
         ))}
       </div>
     </section>
