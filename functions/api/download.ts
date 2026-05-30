@@ -1,8 +1,6 @@
 interface Env {
   DOWNLOAD_KV: KVNamespace;
   PACKAGES_BUCKET: R2Bucket;
-  LOGFLARE_API_KEY?: string;
-  LOGFLARE_SOURCE_ID?: string;
 }
 
 const PLATFORM_MAP: Record<string, string> = {
@@ -60,63 +58,27 @@ async function incrementRateLimit(env: Env, ip: string): Promise<void> {
   }
 }
 
-async function logToLogflare(
-  env: Env,
-  data: { platform: string; ip: string; referer: string | null; userAgent: string | null; blocked: boolean }
-): Promise<void> {
-  const apiKey = env.LOGFLARE_API_KEY;
-  const sourceId = env.LOGFLARE_SOURCE_ID;
-
-  if (!apiKey || !sourceId) {
-    return;
-  }
-
-  const logEntry = {
-    message: data.blocked ? "Download blocked" : "Download started",
-    metadata: {
-      platform: data.platform,
-      ip: data.ip,
-      referer: data.referer,
-      userAgent: data.userAgent,
-      blocked: data.blocked,
-      timestamp: new Date().toISOString(),
-    },
-  };
-
-  try {
-    await fetch(`https://api.logflare.app/logs/json?source=${sourceId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "X-API-KEY": apiKey,
-      },
-      body: JSON.stringify([logEntry]),
-    });
-  } catch {
-    // Silently fail logging - don't block the download
-  }
-}
-
-export async function onRequestGet({ request, env, waitUntil }: { request: Request; env: Env; waitUntil: (promise: Promise<void>) => void }) {
+export async function onRequestGet({ request, env }: { request: Request; env: Env }) {
   const url = new URL(request.url);
   const platform = url.searchParams.get("platform")?.toLowerCase();
-  const ip = getClientIp(request);
-  const referer = request.headers.get("Referer");
-  const userAgent = request.headers.get("User-Agent");
 
   if (!platform || !PLATFORM_MAP[platform]) {
     return new Response("Unknown platform", { status: 400 });
   }
 
+  const token = url.searchParams.get("token");
+  if (!token) {
+    return new Response("Missing token", { status: 403 });
+  }
+
+  const tokenVal = await env.DOWNLOAD_KV.get(`token:${token}`);
+  if (!tokenVal) {
+    return new Response("Invalid or expired token", { status: 403 });
+  }
+
+  const ip = getClientIp(request);
   const rateCheck = await checkRateLimit(env, ip);
   if (!rateCheck.allowed) {
-    waitUntil(logToLogflare(env, {
-      platform,
-      ip,
-      referer,
-      userAgent,
-      blocked: true,
-    }));
     return new Response("Rate limit exceeded", { status: 429 });
   }
 
@@ -129,17 +91,10 @@ export async function onRequestGet({ request, env, waitUntil }: { request: Reque
     return new Response("File not found", { status: 404 });
   }
 
+  // Track download count in KV
   const val = await env.DOWNLOAD_KV.get(`downloads:${platform}`);
   const count = parseInt(val || "0", 10) + 1;
   await env.DOWNLOAD_KV.put(`downloads:${platform}`, String(count));
-
-  waitUntil(logToLogflare(env, {
-    platform,
-    ip,
-    referer,
-    userAgent,
-    blocked: false,
-  }));
 
   const ext = key.slice(key.lastIndexOf("."));
   const headers = new Headers();

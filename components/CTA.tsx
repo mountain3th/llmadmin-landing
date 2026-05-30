@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { FaWindows, FaUbuntu } from "react-icons/fa";
 import { Apple } from "@lobehub/icons";
+import { handleDownloadClick } from "@/utils/analytics";
+import { useDownloadToken } from "@/hooks/useDownloadToken";
 
 const DOWNLOADS: Record<string, { url: string; icon: React.ReactNode; label: string; version: string }> = {
   Windows: {
@@ -35,6 +37,7 @@ function detectOS(): string {
 }
 
 export default function CTA() {
+  const token = useDownloadToken();
   const [os, setOs] = useState<string>("Windows");
 
   useEffect(() => {
@@ -54,7 +57,8 @@ export default function CTA() {
           </p>
           <div className="inline-flex flex-col items-center">
             <a
-              href={download.url}
+              href={`/api/download?platform=${os.toLowerCase()}&token=${token}`}
+              onClick={(e) => handleDownloadClick(e, os.toLowerCase() as "windows" | "macos" | "linux", "cta")}
               className="inline-flex items-center justify-center gap-2 bg-[#2d5a27] text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-[#154212] hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg cursor-pointer"
             >
               {download.icon}
