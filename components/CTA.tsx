@@ -1,12 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { FaWindows, FaUbuntu } from "react-icons/fa";
 import { Apple } from "@lobehub/icons";
-
-function generateToken(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
 
 const DOWNLOADS: Record<string, { icon: React.ReactNode; label: string; version: string }> = {
   Windows: {
@@ -40,16 +36,40 @@ function getPlatformKey(os: string): string {
   return os.toLowerCase();
 }
 
+async function generateSignedUrl(platform: string): Promise<string> {
+  const timestamp = Date.now();
+  const data = `${platform}:${timestamp}`;
+  const secret = "llmadmin-download-secret-v1";
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const dataToSign = encoder.encode(data);
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signature = await crypto.subtle.sign("HMAC", key, dataToSign);
+  const hash = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+
+  return `/api/d/${hash}?p=${platform}&t=${timestamp}`;
+}
+
 export default function CTA() {
   const [os, setOs] = useState<string>("Windows");
+  const [downloadUrl, setDownloadUrl] = useState<string>("");
 
   useEffect(() => {
     setOs(detectOS());
   }, []);
 
-  const downloadUrl = useMemo(() => {
+  useEffect(() => {
     const platform = getPlatformKey(os);
-    return `/api/download?token=${generateToken()}&p=${platform}`;
+    generateSignedUrl(platform).then(setDownloadUrl);
   }, [os]);
 
   const download = DOWNLOADS[os];

@@ -4,15 +4,34 @@ import { Apple } from '@lobehub/icons';
 import { FaWindows, FaUbuntu } from 'react-icons/fa';
 import { useMemo } from 'react';
 
-function generateToken(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+async function generateSignedUrl(platform: string): Promise<string> {
+  const timestamp = Date.now();
+  const data = `${platform}:${timestamp}`;
+  const secret = "llmadmin-download-secret-v1";
+
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const dataToSign = encoder.encode(data);
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signature = await crypto.subtle.sign("HMAC", key, dataToSign);
+  const hash = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+
+  return `/api/d/${hash}?p=${platform}&t=${timestamp}`;
 }
 
 export default function Hero() {
   const downloadUrls = useMemo(() => ({
-    windows: `/api/download?token=${generateToken()}&p=windows`,
-    macos: `/api/download?token=${generateToken()}&p=macos`,
-    linux: `/api/download?token=${generateToken()}&p=linux`,
+    windows: generateSignedUrl("windows"),
+    macos: generateSignedUrl("macos"),
+    linux: generateSignedUrl("linux"),
   }), []);
 
   return (

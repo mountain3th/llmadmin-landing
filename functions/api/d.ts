@@ -3,6 +3,7 @@ interface Env {
   PACKAGES_BUCKET: R2Bucket;
   LOGFLARE_API_KEY?: string;
   LOGFLARE_SOURCE_ID?: string;
+  DOWNLOAD_SECRET?: string;
 }
 
 const PLATFORM_MAP: Record<string, string> = {
@@ -19,6 +20,7 @@ const CONTENT_TYPES: Record<string, string> = {
 
 const RATE_LIMIT = 5;
 const RATE_WINDOW_SECONDS = 60;
+const URL_EXPIRY_SECONDS = 300;
 
 function getClientIp(request: Request): string {
   const cf = request.cf;
@@ -50,6 +52,29 @@ function checkSuspiciousReferer(request: Request): boolean {
   } catch {
     return true;
   }
+}
+
+async function verifySignature(platform: string, timestamp: number, hash: string, secret: string): Promise<boolean> {
+  const data = `${platform}:${timestamp}`;
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const dataToSign = encoder.encode(data);
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signature = await crypto.subtle.sign("HMAC", key, dataToSign);
+  const expectedHash = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+
+  return hash === expectedHash;
 }
 
 async function checkRateLimit(env: Env, ip: string): Promise<{ allowed: boolean; remaining: number }> {
@@ -116,14 +141,44 @@ async function logToLogflare(
 
 export async function onRequestGet({ request, env, waitUntil }: { request: Request; env: Env; waitUntil: (promise: Promise<void>) => void }) {
   const url = new URL(request.url);
+  const pathParts = url.pathname.split("/");
+  const hash = pathParts[pathParts.length - 1];
   const platform = url.searchParams.get("p")?.toLowerCase();
+  const timestamp = parseInt(url.searchParams.get("t") || "0", 10);
   const ip = getClientIp(request);
   const referer = request.headers.get("Referer");
   const userAgent = request.headers.get("User-Agent");
   const suspiciousReferer = checkSuspiciousReferer(request);
+  const secret = env.DOWNLOAD_SECRET || "llmadmin-download-secret-v1";
 
   if (!platform || !PLATFORM_MAP[platform]) {
     return new Response("Unknown platform", { status: 400 });
+  }
+
+  const now = Date.now();
+  if (Math.abs(now - timestamp) > URL_EXPIRY_SECONDS * 1000) {
+    waitUntil(logToLogflare(env, {
+      platform,
+      ip,
+      referer,
+      userAgent,
+      blocked: true,
+      suspiciousReferer,
+    }));
+    return new Response("URL expired", { status: 410 });
+  }
+
+  const valid = await verifySignature(platform, timestamp, hash, secret);
+  if (!valid) {
+    waitUntil(logToLogflare(env, {
+      platform,
+      ip,
+      referer,
+      userAgent,
+      blocked: true,
+      suspiciousReferer,
+    }));
+    return new Response("Invalid signature", { status: 403 });
   }
 
   const rateCheck = await checkRateLimit(env, ip);
